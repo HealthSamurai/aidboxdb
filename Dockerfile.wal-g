@@ -1,0 +1,30 @@
+FROM golang:latest AS builder
+
+ARG WALG_VERSION=v3.0.5
+
+RUN --mount=target=/var/lib/apt/lists,type=cache,sharing=locked \
+    --mount=target=/var/cache/apt,type=cache,sharing=locked \
+    rm -f /etc/apt/apt.conf.d/docker-clean \
+    && apt-get update \
+    && apt-get install -y --no-install-recommends cmake \
+                                                  jq \
+                                                  liblzo2-dev \
+                                                  libsodium-dev
+
+RUN --mount=type=cache,target=/go/pkg/mod,sharing=locked \
+    git clone --depth 1 --branch ${WALG_VERSION} https://github.com/wal-g/wal-g \
+    && cd wal-g \
+    && export USE_BROTLI=1 \
+    && export USE_LIBSODIUM=1 \
+    && export USE_LZO=1 \
+    && make deps \
+    && make pg_build \
+    && main/pg/wal-g --version
+
+
+# Use distroless as minimal base image to package the manager binary
+# Refer to https://github.com/GoogleContainerTools/distroless for more details
+FROM gcr.io/distroless/static:nonroot
+WORKDIR /
+COPY --from=builder --chmod=755 /go/wal-g/main/pg/wal-g /usr/bin/wal-g
+USER 65532:65532
