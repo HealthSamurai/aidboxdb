@@ -36,7 +36,7 @@ build-walg: buildx-init
 
 ## docker run
 
-PG_VERSION ?= 17
+PG_VERSION ?= 18
 
 POSTGRES_DB       ?= postgres
 POSTGRES_PASSWORD ?= postgres

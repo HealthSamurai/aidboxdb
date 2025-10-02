@@ -1,4 +1,4 @@
-ARG PG_VERSION=17
+ARG PG_VERSION=18
 ARG WALG_IMAGE=healthsamurai/wal-g:v3.0.5
 
 FROM ${WALG_IMAGE} AS walg
