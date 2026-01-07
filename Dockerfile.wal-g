@@ -22,9 +22,7 @@ RUN --mount=type=cache,target=/go/pkg/mod,sharing=locked \
     && main/pg/wal-g --version
 
 
-# Use distroless as minimal base image to package the manager binary
-# Refer to https://github.com/GoogleContainerTools/distroless for more details
-FROM gcr.io/distroless/static:nonroot
+FROM alpine:latest
 WORKDIR /
 COPY --from=builder --chmod=755 /go/wal-g/main/pg/wal-g /usr/bin/wal-g
 USER 65532:65532
